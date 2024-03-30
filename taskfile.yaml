@@ -1,0 +1,109 @@
+version: '3'
+
+env: # global scope
+  TF_AUTO: --auto-approve
+  KUBE_GET: kubectl get all
+
+tasks:
+  default:
+    desc: "Show this task list"
+    cmds:
+      - task --list-all
+
+  init:
+    internal: true
+    dir: ""
+    cmds:
+      - terraform init -upgrade
+
+  plan:
+    internal: true
+    cmds:
+      - terraform plan $TF_AUTO
+
+  apply:
+    internal: true
+    dir: ""
+    cmds:
+      - terraform apply $TF_AUTO
+
+  destroy:
+    desc: "Reset the app, perform Terraform destroy"
+    internal: true
+    dir: ""
+    cmds:
+      - terraform destroy $TF_AUTO
+
+  #local-ai-ip:
+  #  desc: "Show Wordpress IP"
+  #  internal: false
+  #  silent: true
+  #  preconditions:
+  #    # Fail when the k8s cluster is not running
+  #    #- kubectl get all
+  #    - $KUBE_GET
+  #  cmds:
+  #    - echo "To view the UI, open https://"$(kubectl get svc local-ai -n local-ai -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+  up:
+    desc: "Bring up the cluster"
+    dir: ""
+    cmds:
+      - task: init
+      - task: apply
+      #- task: local-ai-ip
+
+  config-llm-backend:
+    desc: "Configure LLM backend model"
+    preconditions:
+      # Fail when the k8s cluster is not running
+      #- kubectl get all
+      - $KUBE_GET
+    cmds:
+      - kubectl apply -f ./helm_values/k8sgpt-localai.yaml
+
+  deploy-bad-app:
+    desc: "Create a bad pod"
+    preconditions:
+      # Fail when the k8s cluster is not running
+      #- kubectl get all
+      - $KUBE_GET
+    cmds:
+      - kubectl create deploy bad-app --image=not-exist
+      - sleep 5s
+      - kubectl get pods
+
+  clean-bad-app:
+    desc: "Clean up the bad deployment"
+    preconditions:
+      # Fail when the k8s cluster is not running
+      #- kubectl get all
+      - $KUBE_GET
+    cmds:
+      - kubectl delete deploy bad-app
+      - kubectl get pods
+
+  query-diagnostics:
+    desc: "Analyze the cluster for issue"
+    preconditions:
+      # Fail when the k8s cluster is not running
+      #- kubectl get all
+      - $KUBE_GET
+    cmds:
+      - kubectl get result -n k8sgpt
+
+  display-diagnostics:
+    desc: "Display troubleshooting analysis"
+    preconditions:
+      # Fail when the k8s cluster is not running
+      #- kubectl get all
+      - $KUBE_GET
+    cmds:
+      - kubectl describe result -n k8sgpt $(kubectl get result -n k8sgpt -o jsonpath='{.items[0].metadata.name}')
+
+  cleanup:
+    desc: "Destroy and clean up the cluster"
+    #dir: ""
+    cmds:
+      - task: destroy
+      - find . -name '*terraform*' -print | xargs rm -Rf

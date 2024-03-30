@@ -1,0 +1,23 @@
+#####################
+## IP Address Pool ##
+#####################
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: address-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.49.50-192.168.49.70
+---
+######################
+## L2 Advertisement ##
+######################
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: address-pool
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - address-pool

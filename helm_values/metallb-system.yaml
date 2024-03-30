@@ -1,0 +1,15 @@
+prometheus:
+  serviceMonitor:
+    enabled: ${serviceMonitor_enabled}              # This will be filled with the value of "var.metallb.serviceMonitor_enabled"
+  serviceAccount: "kube-prometheus-stack-operator"
+  namespace: var.prometheus-stack.namespace     # Value derived from the input for Terraform "resource.helm_release.prometheus-stack.namespace"
+
+#speaker:
+#  frr:
+#    enabled: false
+
+# frrk8s contains the configuration related to using an frrk8s instance (github.com/metallb/frr-k8s) as the backend for the BGP implementation.
+# This allows configuring additional frr parameters in combination to those applied by MetalLB.
+#frrk8s:
+  # if set, enables frrk8s as a backend. This is mutually exclusive to frr mode.
+#  enabled: true

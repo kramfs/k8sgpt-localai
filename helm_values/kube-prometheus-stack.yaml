@@ -1,0 +1,43 @@
+#############
+## GRAFANA ##
+#############
+##
+grafana:
+  adminPassword: prom-operator
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - grafana.dev.internal
+
+  serviceMonitor:
+    scrapeTimeout: ""         # Override scrape Prometheus timeout. This should match or lower than the prometheus.prometheusSpec.scrapeInterval (default to inherit) value
+
+####################
+## - PROMETHEUS - ##
+####################
+prometheus:
+  enabled: true
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - prometheus.dev.internal
+
+  ## PROMETHEUS SPEC
+  prometheusSpec:
+    ## SERVICE MONITOR
+    ## Reference:
+    ##  -- https://dev.to/apgapg/creating-a-service-monitor-in-k8s-nl8
+    ##  -- https://devops.stackexchange.com/a/14098
+    ## -- Remove pre configured selectors constraints from prometheus deployment.
+    podMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+    ## Interval between consecutive scrapes.
+    ## Defaults to 30s.
+    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/release-0.44/pkg/prometheus/promcfg.go#L180-L183
+    scrapeInterval: 5s
+
+alertmanager:
+  enabled: false
