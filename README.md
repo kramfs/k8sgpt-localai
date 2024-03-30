@@ -1,35 +1,72 @@
 # Usage
 
+## Pre-requisite
+
+Before you dive in, make sure the following tools are set up and ready to go: minikube needs to spin up clusters smoothly, and docker must handle container creation without a hitch. This automated setup relies on them playing their parts flawlessly.
+
+- `pkgx` - Follow the [installation](https://pkgx.sh/) instruction
+    - Once you have the `pkgx` utility installed, you can install the other required files with:
+    ```
+    pkgx install minikube task terraform kubectl jq k6 git
+    ```
+   If you see an installation path error i.e.  `$HOME/.local/bin is not in PATH`, you can either:
+
+   add the PATH temporarily
+   ```
+   export PATH="$HOME/.local/bin:$PATH"
+   ```
+   Or add it permanently
+   ```
+   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+   source ~/.bashrc
+   ```
+   and try the `pkgx install` again.
+
+- `Docker Engine` - Follow the [installation](https://docs.docker.com/engine/install/) instruction. Make sure the Docker daemon is also available to the user running the commands w/o sudo.
+
 ## Steps Summary
 
 - Bring up the cluster
-- Install the csi-driver-nfs
-- Create and apply a Kubernetes Storage Class (sc) that uses the `nfs.csi.k8s.io` CSI driver.
-    - Uses the terraform `local_file provisioner` to create the `serviceClass` manifest and share the serviceClass name with the sample app later
-- Create a new PersistentVolumeClaim (pvc) using the nfs-csi storage class. This is as simple as specifying `storageClassName: nfs-csi` in the PVC definition
-    - Verify it with: `kubectl describe pvc my-pvc`
-     ```
-      Type     Reason                 Age                    From                                                          Message
-      ----     ------                 ----                   ----                                                          -------
-      Normal   ExternalProvisioning   4m10s (x2 over 4m10s)  persistentvolume-controller                                   Waiting for a volume to be created either by the external provisioner 'nfs.csi.k8s.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
-      Normal   Provisioning           4m10s                  nfs.csi.k8s.io_minikube_a046549b-e2f2-489e-a5f3-752a91490c3b  External provisioner is provisioning volume for claim "default/my-pvc"
-      Normal   ProvisioningSucceeded  4m10s                  nfs.csi.k8s.io_minikube_a046549b-e2f2-489e-a5f3-752a91490c3b  Successfully provisioned volume pvc-f199c164-725b-46a4-97c0-1dc69190518d
-
-     ```
-- Install MetalLB to handout Load Balancer IP when using minikube
-- Install Local-AI, an OpenAI compatible API
-- Try to validate the API and get the model ID:
+- Install the LocalAI helm chart
+    - The pod may start quickly but it will download a large model file on start, multiple Gigabytes in size so this can take sometime depending on your internet connection. Watch the pod's log for status, it is ready to accept queries when you see this:
     ```
-    # Using cURL
-    ❯ curl -s http://192.168.49.50/v1/models | jq '.data[].id'
-    "ggml-gpt4all-j_f5d8f27287d3"
-
-    # Using HTTPie
-    ❯ http http://192.168.49.50/v1/models | jq '.data[].id'
-    "ggml-gpt4all-j_f5d8f27287d3"
+    # 11:33AM INF core/startup process completed!
+    # ┌───────────────────────────────────────────────────┐
+    # │                   Fiber v2.50.0                   │
+    # │               http://127.0.0.1:8080               │
+    # │       (bound on host 0.0.0.0 and port 8080)       │
+    # │                                                   │
+    # │ Handlers ........... 117  Processes ........... 1 │
+    # │ Prefork ....... Disabled  PID ................. 22│
+    # └───────────────────────────────────────────────────┘
     ```
 
- Note: The above will be done with Terraform
+- Install the K8SGPT Operator helm chart
+- Apply a CRD configure what LLM model to use, the name and location of the backend serving the model (refer to `helm_values/k8sgpt-localai.yaml`)
+- Create a `bad` deployment to demonstrate that `k8sgpt` can analyze and troubleshoot
+- Watch as the CPU spike while `k8sgpt` analyze the Kubernetes cluster for any issue. After a while, the result will be accessible in a result resource that can be viewed just like a normal resource i.e.
+    - To check if there's a result available:
+        - `kubectl get result -n k8sgpt`
+    - To view the result analysis:
+        - `kubectl describe result -n k8sgpt $(kubectl get result -n k8sgpt -o jsonpath='{.items[0].metadata.name}')`
+
+
+## AVAILABLE TASK PIPELINE
+Typing `task` will show up the available options
+
+```
+❯ task
+task: [default] task --list-all
+task: Available tasks for this project:
+* clean-bad-app:             Clean up the bad deployment
+* cleanup:                   Destroy and clean up the cluster
+* config-llm-backend:        Configure LLM backend model
+* default:                   Show this task list
+* deploy-bad-app:            Create a bad pod
+* display-diagnostics:       Display troubleshooting analysis
+* query-diagnostics:         Analyze the cluster for issue
+* up:                        Bring up the cluster
+```
 
 ## TASK UP
 To bring up the cluster:
@@ -48,36 +85,66 @@ Downloading git::https://github.com/kramfs/tf-minikube-cluster.git for minikube_
 - minikube_cluster in .terraform/modules/minikube_cluster
 
 Initializing provider plugins...
-- Finding latest version of hashicorp/random...
-- Finding latest version of hashicorp/kubernetes...
-- Finding scott-the-programmer/minikube versions matching "~> 0.3"...
-- Finding latest version of hashicorp/helm...
-- Finding latest version of hashicorp/local...
-- Installing scott-the-programmer/minikube v0.3.10...
-- Installed scott-the-programmer/minikube v0.3.10 (self-signed, key ID 336AB9C62499A32D)
-- Installing hashicorp/helm v2.12.1...
-- Installed hashicorp/helm v2.12.1 (signed by HashiCorp)
-- Installing hashicorp/local v2.5.1...
-- Installed hashicorp/local v2.5.1 (signed by HashiCorp)
-- Installing hashicorp/random v3.6.0...
-- Installed hashicorp/random v3.6.0 (signed by HashiCorp)
-- Installing hashicorp/kubernetes v2.27.0...
-- Installed hashicorp/kubernetes v2.27.0 (signed by HashiCorp)
-
-....
+.
 
 Terraform has been successfully initialized!
-
 .
 .
-Apply complete! Resources: 6 added, 0 changed, 0 destroyed.
+Apply complete! Resources: 3 added, 0 changed, 0 destroyed.
 
 Outputs:
 
 minikube_domain = "cluster.local"
 minikube_ip = "https://192.168.49.2:8443"
 minikube_name = "minikube"
-wp-password = "JRi33652wGWDbiYj"
+```
+
+## DEPLOY TEST APP
+
+Deploy a pod that uses a non-existing image. This will keep on retrying with `ImagePullBackoff` status, which should be pick up by k8sgpt analysis
+
+```
+❯ task test-bad-app
+task: [test-bad-app] kubectl create deploy bad-app --image=not-exist
+deployment.apps/bad-app created
+```
+
+## ANALYZE THE CLUSTER
+
+```
+❯ task query-diagnostics
+task: [query-diagnostics] kubectl get result -n k8sgpt
+NAME                           KIND   BACKEND
+defaultbadapp7d56b4fc5djrmtx   Pod    localai
+```
+
+## SHOW K*SGPT TROUBLESHOOTING RESULT
+```
+❯ task display-diagnostics
+task: [display-diagnostics] kubectl describe result -n k8sgpt $(kubectl get result -n k8sgpt -o jsonpath='{.items[0].metadata.name}')
+Name:         defaultbadapp7d56b4fc5djrmtx
+Namespace:    k8sgpt
+Labels:       k8sgpts.k8sgpt.ai/backend=localai
+              k8sgpts.k8sgpt.ai/name=k8sgpt-localai
+              k8sgpts.k8sgpt.ai/namespace=k8sgpt
+Annotations:  <none>
+API Version:  core.k8sgpt.ai/v1alpha1
+Kind:         Result
+Metadata:
+  Creation Timestamp:  2024-03-30T11:56:11Z
+  Generation:          1
+  Resource Version:    2998
+  UID:                 efa594ff-69e7-4f90-a128-b391a59ba728
+Spec:
+  Backend:  localai
+  Details:  Error: Back-off pulling image "not-exist"
+Solution:
+1. Check if the image name is spelled correctly.
+2. Verify the image name is available for download by using the following command:
+  `docker search not-exist`
+3. If the image is available, try pulling the image using the following command:
+  `docker pull not-exist`
+4. If the image is not found, try using a different image name or refer to the Docker Hub documentation for more information on pulling images.
 ```
 
 
@@ -93,69 +160,32 @@ Example:
 ```
 ❯ task cleanup
 task: [destroy] terraform destroy $TF_AUTO
-random_string.wp-password: Refreshing state... [id=JRi33652wGWDbiYj]
-local_file.sc-nfs: Refreshing state... [id=453b196645508304236c4e213cffb17540f9409d]
 module.minikube_cluster.minikube_cluster.docker: Refreshing state... [id=minikube]
-helm_release.csi-driver-nfs[0]: Refreshing state... [id=csi-driver-nfs]
-helm_release.metallb[0]: Refreshing state... [id=metallb-system]
-helm_release.wordpress[0]: Refreshing state... [id=wordpress]
+helm_release.local-ai[0]: Refreshing state... [id=local-ai]
+helm_release.k8sgpt[0]: Refreshing state... [id=k8sgpt]
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   - destroy
 
 Terraform will perform the following actions:
 
-  # helm_release.csi-driver-nfs[0] will be destroyed
-  - resource "helm_release" "csi-driver-nfs" {
+  # helm_release.k8sgpt[0] will be destroyed
+  - resource "helm_release" "k8sgpt" {
       - atomic                     = false -> null
-      - chart                      = "csi-driver-nfs" -> null
+      - chart                      = "k8sgpt-operator" -> null
       - cleanup_on_fail            = false -> null
       - create_namespace           = true -> null
-      - dependency_update          = false -> null
-      - disable_crd_hooks          = false -> null
-      - disable_openapi_validation = false -> null
-      - disable_webhooks           = false -> null
-      - force_update               = false -> null
-      - id                         = "csi-driver-nfs" -> null
-      - lint                       = false -> null
-      - max_history                = 0 -> null
-      - metadata                   = [
-          - {
-              - app_version = "v4.6.0"
-              - chart       = "csi-driver-nfs"
-              - name        = "csi-driver-nfs"
-              - namespace   = "csi-driver-nfs"
-              - revision    = 1
-              - values      = jsonencode({})
-              - version     = "v4.6.0"
-            },
-        ] -> null
 
 .
 .
-Plan: 0 to add, 0 to change, 6 to destroy.
+Plan: 0 to add, 0 to change, 3 to destroy.
 
 Changes to Outputs:
   - minikube_domain = "cluster.local" -> null
   - minikube_ip     = "https://192.168.49.2:8443" -> null
   - minikube_name   = "minikube" -> null
-  - wp-password     = "JRi33652wGWDbiYj" -> null
-helm_release.metallb[0]: Destroying... [id=metallb-system]
-helm_release.wordpress[0]: Destroying... [id=wordpress]
-helm_release.metallb[0]: Destruction complete after 0s
-helm_release.wordpress[0]: Destruction complete after 2s
-random_string.wp-password: Destroying... [id=JRi33652wGWDbiYj]
-helm_release.csi-driver-nfs[0]: Destroying... [id=csi-driver-nfs]
-random_string.wp-password: Destruction complete after 0s
-helm_release.csi-driver-nfs[0]: Destruction complete after 0s
-local_file.sc-nfs: Destroying... [id=453b196645508304236c4e213cffb17540f9409d]
-local_file.sc-nfs: Destruction complete after 0s
-module.minikube_cluster.minikube_cluster.docker: Destroying... [id=minikube]
-module.minikube_cluster.minikube_cluster.docker: Destruction complete after 8s
 
-Destroy complete! Resources: 6 destroyed.
+Destroy complete! Resources: 3 destroyed.
 task: [cleanup] find . -name '*terraform*' -print | xargs rm -Rf
 
 ```
-
-Typing `task` will show up the available options
