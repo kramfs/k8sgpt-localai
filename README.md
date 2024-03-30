@@ -70,9 +70,6 @@ task: Available tasks for this project:
 
 ## TASK UP
 To bring up the cluster:
-```
-task up
-```
 
 Example:
 ```
