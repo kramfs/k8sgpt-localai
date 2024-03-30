@@ -115,7 +115,7 @@ NAME                           KIND   BACKEND
 defaultbadapp7d56b4fc5djrmtx   Pod    localai
 ```
 
-## SHOW K*SGPT TROUBLESHOOTING RESULT
+## SHOW K8SGPT TROUBLESHOOTING RESULT
 ```
 ❯ task display-diagnostics
 task: [display-diagnostics] kubectl describe result -n k8sgpt $(kubectl get result -n k8sgpt -o jsonpath='{.items[0].metadata.name}')
