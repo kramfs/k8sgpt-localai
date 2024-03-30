@@ -106,8 +106,8 @@ task: [test-bad-app] kubectl create deploy bad-app --image=not-exist
 deployment.apps/bad-app created
 ```
 
-## ANALYZE THE CLUSTER
-
+## CHECK FOR NEW ANALYSIS
+The k8sgpt operator will create a `result` resource if there's a new analysis available:
 ```
 ❯ task query-diagnostics
 task: [query-diagnostics] kubectl get result -n k8sgpt
