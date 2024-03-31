@@ -1,11 +1,12 @@
 # Usage
 
-## Pre-requisite
+## Pre-requisiteS
 
 Before you dive in, make sure the following tools are set up and ready to go: minikube needs to spin up clusters smoothly, and docker must handle container creation without a hitch. This automated setup relies on them playing their parts flawlessly.
 
-- `pkgx` - Follow the [installation](https://pkgx.sh/) instruction
-    - Once you have the `pkgx` utility installed, you can install the other required files with:
+- `pkgx` 
+  - Follow the [installation](https://pkgx.sh/) instruction
+   - Once you have the `pkgx` utility installed, you can install the other required files with:
     ```
     pkgx install minikube task terraform kubectl jq k6 git
     ```
@@ -22,7 +23,8 @@ Before you dive in, make sure the following tools are set up and ready to go: mi
    ```
    and try the `pkgx install` again.
 
-- `Docker Engine` - Follow the [installation](https://docs.docker.com/engine/install/) instruction. Make sure the Docker daemon is also available to the user running the commands w/o sudo.
+- `Docker Engine` 
+    - Follow the [installation](https://docs.docker.com/engine/install/) instruction. Make sure the Docker daemon is also available to the user running the commands `without` needing to sudo.
 
 ## Steps Summary
 
@@ -51,7 +53,7 @@ Before you dive in, make sure the following tools are set up and ready to go: mi
         - `kubectl describe result -n k8sgpt $(kubectl get result -n k8sgpt -o jsonpath='{.items[0].metadata.name}')`
 
 
-## AVAILABLE TASK PIPELINE
+## Available Tasks
 Typing `task` will show up the available options
 
 ```
@@ -68,8 +70,12 @@ task: Available tasks for this project:
 * up:                        Bring up the cluster
 ```
 
-## TASK UP
+## Task UP!
 To bring up the cluster:
+
+```
+task up
+```
 
 Example:
 ```
@@ -96,17 +102,22 @@ minikube_ip = "https://192.168.49.2:8443"
 minikube_name = "minikube"
 ```
 
-## DEPLOY TEST APP
+## Deploy the Test App
 
 Deploy a pod that uses a non-existing image. This will keep on retrying with `ImagePullBackoff` status, which should be pick up by k8sgpt analysis
 
+```
+task test-bad-app
+```
+
+Example:
 ```
 ❯ task test-bad-app
 task: [test-bad-app] kubectl create deploy bad-app --image=not-exist
 deployment.apps/bad-app created
 ```
 
-## CHECK FOR NEW ANALYSIS
+## Check for New Analysis
 The k8sgpt operator will create a `result` resource if there's a new analysis available:
 ```
 ❯ task query-diagnostics
@@ -115,7 +126,13 @@ NAME                           KIND   BACKEND
 defaultbadapp7d56b4fc5djrmtx   Pod    localai
 ```
 
-## SHOW K8SGPT TROUBLESHOOTING RESULT
+## Show K8SGPT Troubleshooting Result
+
+```
+task display-diagnostics
+```
+
+Example:
 ```
 ❯ task display-diagnostics
 task: [display-diagnostics] kubectl describe result -n k8sgpt $(kubectl get result -n k8sgpt -o jsonpath='{.items[0].metadata.name}')
@@ -146,7 +163,7 @@ Solution:
 
 
 
-## TASK CLEANUP
+## Task Cleanup!
 To destroy and clean up the cluster:
 ```
 task cleanup
