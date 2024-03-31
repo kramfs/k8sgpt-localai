@@ -2,13 +2,13 @@
 
 Demo using K8SGPT to triage and diagnose issue in a Kubernetes Cluster. It can use different backends and LLM models to do its job from ChatGPT, Google Gemini Pro, HuggingFace, LocalAI, etc. Some of the backends requires a pro subscription once you reach certain API thresholds, apart from you are sending data to a third party for analysis. In this example, we use  LocalAI with Meta Llama 2 model which is downloaded upon startup so all the analysis are done locally within the cluster, no data is transmitted.
 
-<b>K8sGPT is</b>:
+**K8sGPT is**:
+> ...a tool for scanning your kubernetes clusters, diagnosing and triaging issues in simple english. It has SRE experience codified into it’s analyzers and helps to pull out the most relevant information to enrich it with AI.
+</quote>
 
-     ...a tool for scanning your kubernetes clusters, diagnosing and triaging issues in simple english. It has SRE experience codified into it’s analyzers and helps to pull out the most relevant information to enrich it with AI.
+**LocalAI is**:
 
-<b>LocalAI is</b>:
-
-    LocalAI is the free, Open Source OpenAI alternative. LocalAI act as a drop-in replacement REST API that’s compatible with OpenAI (Elevenlabs, Anthropic... ) API specifications for local AI inferencing. It allows you to run LLMs, generate images, audio (and not only) locally or on-prem with consumer grade hardware, supporting multiple model families. Does not require GPU.
+> LocalAI is the free, Open Source OpenAI alternative. LocalAI act as a drop-in replacement REST API that’s compatible with OpenAI (Elevenlabs, Anthropic... ) API specifications for local AI inferencing. It allows you to run LLMs, generate images, audio (and not only) locally or on-prem with consumer grade hardware, supporting multiple model families. Does not require GPU.
 
 
 ## Pre-requisites
