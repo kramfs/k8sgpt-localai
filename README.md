@@ -1,10 +1,10 @@
 # Usage
 
-## Pre-requisiteS
+## Pre-requisites
 
 Before you dive in, make sure the following tools are set up and ready to go: minikube needs to spin up clusters smoothly, and docker must handle container creation without a hitch. This automated setup relies on them playing their parts flawlessly.
 
-- `pkgx` 
+- `pkgx`
   - Follow the [installation](https://pkgx.sh/) instruction
    - Once you have the `pkgx` utility installed, you can install the other required files with:
     ```
@@ -23,7 +23,7 @@ Before you dive in, make sure the following tools are set up and ready to go: mi
    ```
    and try the `pkgx install` again.
 
-- `Docker Engine` 
+- `Docker Engine`
     - Follow the [installation](https://docs.docker.com/engine/install/) instruction. Make sure the Docker daemon is also available to the user running the commands `without` needing to sudo.
 
 ## Steps Summary
