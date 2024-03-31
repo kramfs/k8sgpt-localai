@@ -44,7 +44,7 @@ provider "helm" {
 ## HELM RELEASE ##
 
 ## LOCAL-AI
-# REF: https://artifacthub.io/packages/helm/bitnami/wordpress
+# REF: https://github.com/go-skynet/helm-charts/blob/main/README.md
 
 resource "helm_release" "local-ai" {
   count             = var.local-ai.install ? 1 : 0
