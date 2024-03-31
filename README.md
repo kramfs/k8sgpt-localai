@@ -139,8 +139,6 @@ defaultbadapp7d56b4fc5djrmtx   Pod    localai
 
 ## Show K8SGPT Troubleshooting Result
 
-The 
-
 ```
 task display-diagnostics
 ```
