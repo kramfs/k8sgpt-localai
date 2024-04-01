@@ -218,7 +218,7 @@ task: [query-diagnostics] kubectl get result -n k8sgpt
 No resources found in k8sgpt namespace.
 ```
 
-You can play around and deploy the `bad` again again with `task test-bad-app`, the the operator should catch up the issue and provide a diagnostic accordingly.
+You can play around and deploy the `bad` again with `task test-bad-app`, the the operator should catch up the issue and provide a diagnostic accordingly.
 
 
 ## Task Cleanup!
