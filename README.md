@@ -62,6 +62,12 @@ Before you dive in, make sure the following tools are set up and ready to go: mi
         - `kubectl get result -n k8sgpt`
     - To view the result analysis:
         - `kubectl describe result -n k8sgpt $(kubectl get result -n k8sgpt -o jsonpath='{.items[0].metadata.name}')`
+- Once the issue is fixed, the problem with the `bad` deployment is corrected, it will also remove the operator `result` resource in the k8sgpt namespace. What this means is that, the `result` resource will only be present and created if there's a new issue or diagnostic available.
+    ```
+    $ kubectl get result -n k8sgpt
+    No resources found in k8sgpt namespace.
+    ```
+     With this in mind, for **production** use, you can potentially monitor this in Prometheus/Grafana and create an alert once the presence of the `result` is detected.
 
 
 ## Available Tasks
