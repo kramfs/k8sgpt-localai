@@ -129,9 +129,16 @@ task test-bad-app
 
 Example:
 ```
-❯ task test-bad-app
-task: [test-bad-app] kubectl create deploy bad-app --image=not-exist
+❯ task deploy-bad-app
+
+task: [deploy-bad-app] kubectl create deploy bad-app --image=not-exist
 deployment.apps/bad-app created
+
+task: [deploy-bad-app] sleep 5s
+
+task: [deploy-bad-app] kubectl get pods
+NAME                       READY   STATUS         RESTARTS   AGE
+bad-app-7d56b4fc5d-rx2f2   0/1     ErrImagePull   0          5s
 ```
 
 ## Check for New Analysis
@@ -178,6 +185,40 @@ Solution:
 4. If the image is not found, try using a different image name or refer to the Docker Hub documentation for more information on pulling images.
 ```
 
+## Clean up Test App
+
+Try to remove the bad app, the operator will also detect that the issue is longer present and remove the diagnostic `result` too.
+
+```
+task clean-bad-app
+```
+
+Example:
+```
+❯ task clean-bad-app
+task: [clean-bad-app] kubectl delete deploy bad-app
+
+deployment.apps "bad-app" deleted
+
+task: [clean-bad-app] kubectl get pods
+NAME                       READY   STATUS        RESTARTS   AGE
+bad-app-7d56b4fc5d-rx2f2   0/1     Terminating   0          119s
+```
+
+After a while (usually just few seconds), if you check diagnostic again, there should be nothing available as the issue has been cleared.
+
+```
+task query-diagnostics
+```
+
+Example:
+```
+❯ task query-diagnostics
+task: [query-diagnostics] kubectl get result -n k8sgpt
+No resources found in k8sgpt namespace.
+```
+
+You can play around and deploy the `bad` again again with `task test-bad-app`, the the operator should catch up the issue and provide a diagnostic accordingly.
 
 
 ## Task Cleanup!
