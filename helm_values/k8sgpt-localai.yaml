@@ -11,13 +11,14 @@ spec:
     #model: ggml-gpt4all-j.bin
     model: gpt-4
     # kubernetes-internal DNS name of the local-ai Service
-    #baseUrl: http://local-ai.local-ai.svc.cluster.local:8080/v1
     baseUrl: http://local-ai.local-ai.svc.cluster.local/v1
 
     # secret:
     #  name: k8sgpt-sample-secret
     #  key: openai-api-key
-    # anonymized: false
+
+    # Set to "anonymized: false" so it will show the deployment and pod name where the issue is coming from in the diagnostic result
+    anonymized: false             # Default: true
     # language: english
 
     # Allow K8sGPT to store AI analyses in an in-memory cache, otherwise the cluster may get throttled
