@@ -218,7 +218,7 @@ task: [query-diagnostics] kubectl get result -n k8sgpt
 No resources found in k8sgpt namespace.
 ```
 
-You can play around and deploy the `bad` again with `task test-bad-app`, the the operator should catch up the issue and provide a diagnostic accordingly.
+You can play around and deploy the `bad` again with `task test-bad-app`, the operator should catch up the issue and provide a diagnostic accordingly.
 
 
 ## Task Cleanup!
@@ -248,8 +248,10 @@ Terraform will perform the following actions:
       - cleanup_on_fail            = false -> null
       - create_namespace           = true -> null
 
-.
-.
+  .
+  .
+  }
+
 Plan: 0 to add, 0 to change, 3 to destroy.
 
 Changes to Outputs:
